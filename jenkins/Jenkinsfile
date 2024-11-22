@@ -1,10 +1,4 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.9.4' // Maven version that meets the requirement
-            args "-v ${WORKSPACE}/.m2:/root/.m2"
-        }
-    }
     stages {
         stage('Build') {
             steps {
