@@ -41,7 +41,7 @@ pipeline {
         }
         stage('Deliver') {
             steps {
-                sh './jenkins/scripts/deliver.sh'
+                sh 'mvn -B -Dmaven.repo.local=/root/.m2/repository -DskipTests clean package'
             }
         }
     }
