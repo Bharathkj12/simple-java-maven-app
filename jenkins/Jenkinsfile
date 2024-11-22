@@ -1,54 +1,45 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.9.4' // Use the Maven Docker image
-            args '-v /root/.m2:/root/.m2' // Mount Maven repository for caching dependencies
+            image 'maven:3.9.4'
+            args '-v /root/.m2:/root/.m2'
         }
     }
     environment {
-        JAVA_HOME = '/usr/lib/jvm/java-11-openjdk-amd64' // Adjust if Java 11 is installed elsewhere
-        MAVEN_OPTS = '-Xmx1024m' // Adjust memory options as needed
+        JAVA_HOME = '/opt/java/openjdk' // Default Java path in Maven Docker images
+        PATH = "${JAVA_HOME}/bin:${env.PATH}" // Add Java to PATH
     }
     stages {
         stage('Verify Environment') {
             steps {
                 sh 'java -version' // Verify Java is available
-                sh 'mvn -v'        // Verify Maven is available
-            }
-        }
-        stage('Clean Workspace') {
-            steps {
-                deleteDir() // Clean up the workspace before starting
+                sh 'mvn -v'        // Verify Maven detects Java
             }
         }
         stage('Build') {
             steps {
-                sh 'mvn -B -DskipTests clean package' // Build the application without tests
+                sh 'mvn -B -DskipTests clean package'
             }
         }
         stage('Test') {
             steps {
-                sh 'mvn test' // Run unit tests
+                sh 'mvn test'
             }
             post {
                 always {
-                    junit 'target/surefire-reports/*.xml' // Publish test results
+                    junit 'target/surefire-reports/*.xml'
                 }
             }
         }
         stage('Deliver') {
             steps {
-                script {
-                    // Ensure the deliver script is executable
-                    sh 'chmod +x ./jenkins/scripts/deliver.sh'
-                }
-                sh './jenkins/scripts/deliver.sh' // Execute delivery script
+                sh './jenkins/scripts/deliver.sh'
             }
         }
     }
     post {
         always {
-            cleanWs() // Clean up the workspace after the pipeline completes
+            cleanWs()
         }
     }
 }
