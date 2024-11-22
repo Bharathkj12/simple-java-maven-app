@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.9.0'
+            image 'maven:3.9.4' // Use a version that meets your project's requirements
             args '-v /root/.m2:/root/.m2'
         }
     }
