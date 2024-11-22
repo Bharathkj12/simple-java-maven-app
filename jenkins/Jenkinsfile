@@ -1,21 +1,11 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.9.4'
-            args '-v ${WORKSPACE}/.m2:/root/.m2' // Mount .m2 in the workspace
+            image 'maven:3.9.0'
+            args '-v /root/.m2:/root/.m2'
         }
-    }
-    environment {
-        JAVA_HOME = '/opt/java/openjdk'
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
     }
     stages {
-        stage('Verify Environment') {
-            steps {
-                sh 'java -version'
-                sh 'mvn -v'
-            }
-        }
         stage('Build') {
             steps {
                 sh 'mvn -B -DskipTests clean package'
@@ -35,11 +25,6 @@ pipeline {
             steps {
                 sh './jenkins/scripts/deliver.sh'
             }
-        }
-    }
-    post {
-        always {
-            cleanWs()
         }
     }
 }
