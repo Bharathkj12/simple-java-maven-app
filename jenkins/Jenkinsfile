@@ -1,10 +1,23 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.9.4' // Use a version that meets your project's requirements
+            image 'maven:3.9.4'
+            args '-v /root/.m2:/root/.m2'
         }
     }
+    environment {
+        APP_ENV = 'production'
+        VERSION = '1.0.0'
+    }
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+    }
     stages {
+        stage('Verify Maven Version') {
+            steps {
+                sh 'mvn -v'
+            }
+        }
         stage('Build') {
             steps {
                 sh 'mvn -B -DskipTests clean package'
@@ -15,6 +28,12 @@ pipeline {
                 sh 'mvn test'
             }
             post {
+                success {
+                    echo 'Tests passed successfully.'
+                }
+                failure {
+                    echo 'Tests failed. Check the reports for details.'
+                }
                 always {
                     junit 'target/surefire-reports/*.xml'
                 }
